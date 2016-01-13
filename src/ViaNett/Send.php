@@ -9,6 +9,7 @@ class ViaNett_Send extends ViaNett_Client {
   private $receiver;
   private $message;
   private $messageId;
+  private $messageOptions;
 
   /**
    * @return bool
@@ -55,16 +56,25 @@ class ViaNett_Send extends ViaNett_Client {
   }
 
   /**
+   * @param $options
+   */
+  public function setMessageOptions($options) {
+    $this->messageOptions = $options;
+  }
+
+  /**
    * @param $sender
    * @param $receiver
    * @param $message
    * @param $message_id
+   * @param $options
    */
-  public function prepareSMS($sender, $receiver, $message, $message_id) {
+  public function prepareSMS($sender, $receiver, $message, $message_id, $options = array()) {
     $this->setSender($sender);
     $this->setReceiver($receiver);
     $this->setMessage($message);
     $this->setMessageId($message_id);
+    $this->setMessageOptions($options);
   }
 
   /**
@@ -91,15 +101,21 @@ class ViaNett_Send extends ViaNett_Client {
    */
   protected function prepareUrl() {
     $this->doValidation();
-    $url = 'username=%s&password=%s&SenderAddress=%s&tel=%s&msg=%s&msgid=%s';
-    return sprintf(
-      $url,
-      urlencode($this->getUsername()),
-      urlencode($this->getPassword()),
-      urlencode($this->sender),
-      urlencode($this->receiver),
-      urlencode($this->message),
-      urlencode($this->messageId)
+
+    $fields = array(
+      'username' => $this->getUsername(),
+      'password' => $this->getPassword(),
+      'SenderAddress' => $this->sender,
+      'tel' => $this->receiver,
+      'msg' => $this->message,
+      'msgid' => $this->messageId,
     );
+
+    // Append additional options.
+    if ($this->messageOptions) {
+      $fields += $this->messageOptions;
+    }
+
+    return http_build_query($fields);
   }
 }
