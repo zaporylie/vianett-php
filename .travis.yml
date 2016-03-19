@@ -13,6 +13,7 @@ install:
 
 script:
   - composer test
+  - ls -la tests/output
 
-after_script:
+after_success:
   - php vendor/bin/coveralls
