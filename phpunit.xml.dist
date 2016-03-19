@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="vendor/autoload.php" colors="true">
+    <testsuites>
+        <testsuite name="Vianett Test Suite">
+            <directory>tests/Vianett/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src/Vianett/</directory>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type='coverage-html' target='tests/output/report'/>
+        <log type="coverage-clover" target="tests/output/coverage.xml"/>
+    </logging>
+
+    <php>
+        <ini name="date.timezone" value="UTC"/>
+    </php>
+</phpunit>
