@@ -93,9 +93,6 @@ class Message {
    * @throws \Exception
    */
   private function doValidation() {
-    if (!$this->client) {
-      throw new \Exception('Missing client.');
-    }
     if (!$this->sender) {
       throw new \Exception('Missing sender value.');
     }

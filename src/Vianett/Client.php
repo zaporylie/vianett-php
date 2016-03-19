@@ -81,7 +81,7 @@ class Client {
    * @return bool
    * @throws \Exception
    */
-  protected function parseResponse($response) {
+  public function parseResponse($response) {
     $response = simplexml_load_string($response);
     if (!isset($response->attributes()->errorcode)) {
       throw new \Exception('Something went wrong. Unable to get valid response.');
