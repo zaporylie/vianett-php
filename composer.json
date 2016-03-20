@@ -1,7 +1,7 @@
 {
   "name": "zaporylie/vianett-php",
   "type": "library",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "API client library for the Vianett sms as a service platform",
   "keywords": ["sms", "api"],
   "license": "GPL-2.0+",
