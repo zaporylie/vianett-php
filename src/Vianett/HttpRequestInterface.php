@@ -4,7 +4,9 @@ namespace Vianett;
 
 interface HttpRequestInterface
 {
-  public function __construct($values, $path);
+  public function __construct($values = []);
+
+  public function setValues($values = []);
 
   public function execute();
 
