@@ -3,11 +3,12 @@
 namespace Vianett;
 
 /**
- * Class CurlGet
+ * Class CurlPost
  * @package Vianett
  */
-class CurlGet extends VianettHttpRequest implements HttpRequestInterface, CurlInterface
+class CurlPost extends VianettHttpRequest implements HttpRequestInterface, CurlInterface
 {
+
   use CurlTrait;
 
   public function __construct($values = []) {
@@ -18,10 +19,12 @@ class CurlGet extends VianettHttpRequest implements HttpRequestInterface, CurlIn
 
   public function setValues($values = []) {
     parent::setValues($values);
-    curl_setopt($this->request, CURLOPT_URL, self::HOST . '?' . http_build_query($this->values));
+    curl_setopt($this->request, CURLOPT_POSTFIELDS, $this->values);
   }
 
   public function setOptions() {
+    curl_setopt($this->request, CURLOPT_URL, self::HOST);
+    curl_setopt($this->request, CURLOPT_POST, 1);
     curl_setopt($this->request, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($this->request, CURLOPT_CONNECTTIMEOUT, 10);
     curl_setopt($this->request, CURLOPT_SSL_VERIFYPEER, false);

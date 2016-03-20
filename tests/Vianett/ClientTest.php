@@ -28,6 +28,22 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals('newpassword', $this->client->getPassword());
   }
 
+  public function testRequest()
+  {
+    $success = "<?xml version=\"1.0\"?>\n<ack refno=\"1234\" errorcode=\"200\">OK</ack>";
+    $httpRequest =  $this->getMockBuilder('\Vianett\CurlGet')
+      ->getMock();
+    $httpRequest->expects($this->any())
+      ->method('execute')
+      ->will($this->returnValue($success));
+    $httpRequest->expects($this->any())
+      ->method('getCode')
+      ->will($this->returnValue(200));
+
+    $this->client->setHttpRequest($httpRequest);
+    $this->client->doRequest([]);
+  }
+
   public function testResponse()
   {
     $success = "<?xml version=\"1.0\"?>\n<ack refno=\"1234\" errorcode=\"200\">OK</ack>";

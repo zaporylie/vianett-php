@@ -7,8 +7,25 @@ namespace Vianett;
  */
 class Client {
 
+  /**
+   * @var
+   */
   protected $username;
+
+  /**
+   * @var
+   */
   protected $password;
+
+  /**
+   * @var HttpRequestInterface
+   */
+  protected $httpRequest;
+
+  /**
+   *
+   */
+  const DEFAULT_HTTP_REQUEST_CLASS = '\Vianett\CurlGet';
 
   /**
    * Class constructor.
@@ -18,55 +35,70 @@ class Client {
    * @param $password
    *   ViaNett account password.
    */
-  public function __construct($username, $password) {
-    $this->setUsername($username);
-    $this->setPassword($password);
+  public function __construct($username, $password)
+  {
+    $this->username = $username;
+    $this->password = $password;
+    $http_request = self::DEFAULT_HTTP_REQUEST_CLASS;
+    $this->setHttpRequest(new $http_request());
   }
 
   /**
    * @return mixed
    */
-  public function getUsername() {
+  public function getUsername()
+  {
     return $this->username;
   }
 
   /**
    * @return mixed
    */
-  public function getPassword() {
+  public function getPassword()
+  {
     return $this->password;
   }
 
   /**
    * @param $username
    */
-  public function setUsername($username) {
+  public function setUsername($username)
+  {
     $this->username = $username;
   }
 
   /**
    * @param $password
    */
-  public function setPassword($password) {
+  public function setPassword($password)
+  {
     $this->password = $password;
+  }
+
+  /**
+   * @param \Vianett\HttpRequestInterface $httpRequest
+   */
+  public function setHttpRequest(HttpRequestInterface $httpRequest)
+  {
+    $this->httpRequest = $httpRequest;
   }
 
   /**
    * @param $url
    * @return bool
    * @throws \Exception
-   * @codeCoverageIgnore
    */
-  public function doRequest($values) {
+  public function doRequest($values)
+  {
     $values += [
-      'username' => $this->getUsername(),
-      'password' => $this->getPassword(),
+      'username' => $this->username,
+      'password' => $this->password
     ];
-    $request = new CurlGet($values);
-    $response = $request->execute();
-    $code = $request->getCode();
-    $request->close();
-    $this->parseResponse($request, $code);
+    $this->httpRequest->setValues($values);
+    $response = $this->httpRequest->execute();
+    $code = $this->httpRequest->getCode();
+    $this->httpRequest->close();
+    $this->parseResponse($response, $code);
   }
 
   /**
@@ -74,7 +106,8 @@ class Client {
    * @return bool
    * @throws \Exception
    */
-  public function parseResponse($response, $code) {
+  public function parseResponse($response, $code)
+  {
 
     if (empty($response)) {
       throw new \Exception('No response.', $code);
