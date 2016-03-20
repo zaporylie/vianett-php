@@ -30,15 +30,17 @@ class Message {
    * @throws \Exception
    */
   public function send() {
-    $url = $this->prepareUrl();
-    return $this->client->doRequest($url);
+    $this->doValidation();
+    $values = $this->prepareValues();
+    return $this->client->doRequest($values);
   }
 
   /**
    * @return string
    */
   public function debug() {
-    return $this->prepareUrl();
+    $this->doValidation();
+    return $this->prepareValues();
   }
 
   /**
@@ -111,17 +113,29 @@ class Message {
    * @return string
    * @throws \Exception
    */
-  protected function prepareUrl() {
-    $this->doValidation();
-    $url = 'username=%s&password=%s&SenderAddress=%s&tel=%s&msg=%s&msgid=%s';
-    return sprintf(
-      $url,
-      urlencode($this->client->getUsername()),
-      urlencode($this->client->getPassword()),
-      urlencode($this->sender),
-      urlencode($this->receiver),
-      urlencode($this->message),
-      urlencode($this->messageId)
-    );
+  protected function prepareValues() {
+    return [
+      'SenderAddress' => $this->sender,
+      'Tel' => $this->receiver,
+      'msg' => $this->message,
+      'msgid' => $this->messageId,
+      //SenderAddressType
+      //msgbinary
+      //msgheader
+      //ReplyPathValue
+      //ReplypathID
+      //ScheduledDate
+      //ScheduledSMSCDate
+      //ReferenceID
+      //CheckForDuplicates
+      //MMSdata
+      //mmsurl
+      //PriceGroup
+      //CampaignID
+      //TeleOp
+      //Nrq
+      //Priority
+      //HLRMCC/HLRMNC/HLRDate
+    ];
   }
 }
