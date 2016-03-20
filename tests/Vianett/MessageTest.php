@@ -22,34 +22,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
 
   public function testSend()
   {
-
-  }
-
-  public function testClient()
-  {
-    $client = new Client('username2', 'password2');
-    $this->message->setClient($client);
-  }
-
-  public function testPrepare()
-  {
-    $username = $this->client->getUsername();
-    $password = $this->client->getPassword();
-    $sender = 'sender';
-    $receiver = 'receiver';
-    $message = 'message';
-    $message_id = 'message_id';
-    $this->message->prepare($sender, $receiver, $message, $message_id);
-    $url = $this->message->debug();
-    $this->assertContains("username=$username", $url);
-    $this->assertContains("password=$password", $url);
-    $this->assertContains("SenderAddress=$sender", $url);
-    $this->assertContains("tel=$receiver", $url);
-    $this->assertContains("msg=$message", $url);
-    $this->assertContains("msgid=$message_id", $url);
-  }
-
-  public function testSearch() {
     $client = $this->getMockBuilder('\Vianett\Client')
       ->disableOriginalConstructor()
       ->getMock();
@@ -61,6 +33,31 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     $this->message->prepare('t', 'e', 's', 't');
     $response = $this->message->send();
     $this->assertEquals('test', $response);
+
+  }
+
+  public function testClient()
+  {
+    $client = new Client('username2', 'password2');
+    $this->message->setClient($client);
+  }
+
+  public function testPrepare()
+  {
+    $sender = 'sender';
+    $receiver = 'receiver';
+    $message = 'message';
+    $message_id = 'message_id';
+    $this->message->prepare($sender, $receiver, $message, $message_id);
+    $values = $this->message->debug();
+    $this->assertArrayHasKey('SenderAddress', $values);
+    $this->assertEquals($sender, $values['SenderAddress']);
+    $this->assertArrayHasKey('Tel', $values);
+    $this->assertEquals($receiver, $values['Tel']);
+    $this->assertArrayHasKey('msg', $values);
+    $this->assertEquals($message, $values['msg']);
+    $this->assertArrayHasKey('msgid', $values);
+    $this->assertEquals($message_id, $values['msgid']);
   }
 
   /**

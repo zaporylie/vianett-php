@@ -10,8 +10,6 @@ class Client {
   protected $username;
   protected $password;
 
-  const VIANETT_CLIENT_HOST = 'http://smsc.vianett.no/V3/CPA/MT/MT.ashx';
-
   /**
    * Class constructor.
    *
@@ -57,23 +55,18 @@ class Client {
    * @param $url
    * @return bool
    * @throws \Exception
+   * @codeCoverageIgnore
    */
-  public function doRequest($url) {
-    $request = curl_init();
-    curl_setopt($request, CURLOPT_URL, self::VIANETT_CLIENT_HOST . '?' . $url);
-    curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($request, CURLOPT_CONNECTTIMEOUT, 10);
-    curl_setopt($request, CURLOPT_SSL_VERIFYPEER, false);
-    $response = curl_exec($request);
-    $code = curl_getinfo($request, CURLINFO_HTTP_CODE);
-    curl_close($request);
-    if (!$response) {
-      throw new \Exception('No response', $code);
-    }
-    if ($code <> 200) {
-      throw new \Exception('Incorrect response code', $code);
-    }
-    return $this->parseResponse($response);
+  public function doRequest($values) {
+    $values += [
+      'username' => $this->getUsername(),
+      'password' => $this->getPassword(),
+    ];
+    $request = new CurlGet($values);
+    $response = $request->execute();
+    $code = $request->getCode();
+    $request->close();
+    $this->parseResponse($request, $code);
   }
 
   /**
@@ -81,7 +74,15 @@ class Client {
    * @return bool
    * @throws \Exception
    */
-  public function parseResponse($response) {
+  public function parseResponse($response, $code) {
+
+    if (empty($response)) {
+      throw new \Exception('No response.', $code);
+    }
+    if ($code >= 400) {
+      throw new \Exception('Incorrect response code.', $code);
+    }
+
     $response = simplexml_load_string($response);
     if (!isset($response->attributes()->errorcode)) {
       throw new \Exception('Something went wrong. Unable to get valid response.');
