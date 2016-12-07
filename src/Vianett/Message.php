@@ -114,7 +114,7 @@ class Message {
    * @throws \Exception
    */
   protected function prepareValues() {
-    return [
+    return array(
       'SenderAddress' => $this->sender,
       'Tel' => $this->receiver,
       'msg' => $this->message,
@@ -136,6 +136,6 @@ class Message {
       //Nrq
       //Priority
       //HLRMCC/HLRMNC/HLRDate
-    ];
+    );
   }
 }

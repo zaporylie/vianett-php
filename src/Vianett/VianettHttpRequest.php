@@ -14,7 +14,7 @@ class VianettHttpRequest {
    */
   const HOST = 'http://smsc.vianett.no/V3/CPA/MT/MT.ashx';
 
-  public function setValues($values = []) {
+  public function setValues($values = array()) {
     $this->values = $values;
   }
 

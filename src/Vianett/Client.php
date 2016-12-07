@@ -90,10 +90,10 @@ class Client {
    */
   public function doRequest($values)
   {
-    $values += [
+    $values += array(
       'username' => $this->username,
       'password' => $this->password
-    ];
+    );
     $this->httpRequest->setValues($values);
     $response = $this->httpRequest->execute();
     $code = $this->httpRequest->getCode();
