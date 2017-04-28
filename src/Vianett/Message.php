@@ -2,4 +2,7 @@
 
 namespace zaporylie\Vianett;
 
-class Exception extends \Exception {}
+class Message
+{
+  
+}

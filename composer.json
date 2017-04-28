@@ -3,7 +3,7 @@
   "type": "library",
   "description": "API client library for the Vianett sms as a service platform",
   "keywords": ["sms", "api"],
-  "license": "GPL-2.0+",
+  "license": "MIT",
   "homepage": "https://github.com/zaporylie/vianett-php",
   "authors": [
     {
@@ -29,14 +29,18 @@
     "satooshi/php-coveralls": "dev-master"
   },
   "scripts": {
+    "post-update-cmd": "zaporylie\\Vianett\\ScriptHandler::createExamplesConfigFile",
+    "post-install-cmd": "zaporylie\\Vianett\\ScriptHandler::createExamplesConfigFile",
     "test": [
-      "parallel-lint . --exclude vendor",
-      "phpunit"
-    ]
+      "composer test-style",
+      "composer exec phpunit"
+    ],
+    "test-style": "composer exec -- phpcs -p -v",
+    "fix-style": "composer exec -- phpcbf -p -v"
   },
   "autoload": {
     "psr-4": {
-      "zaporylie\\Vianett\\": "src"
+      "zaporylie\\Vianett\\": "src/Vianett"
     }
   }
 }
