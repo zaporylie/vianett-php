@@ -12,7 +12,7 @@ class VianettHttpRequest {
   /**
    *
    */
-  const HOST = 'http://smsc.vianett.no/V3/CPA/MT/MT.ashx';
+  const HOST = 'https://smsc.vianett.no/V3/CPA/MT/MT.ashx';
 
   public function setValues($values = []) {
     $this->values = $values;
