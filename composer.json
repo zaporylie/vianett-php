@@ -24,12 +24,13 @@
     "php-http/message": "^1.0",
     "phpunit/phpunit": "^5.0",
     "jakub-onderka/php-parallel-lint": "0.9",
-    "satooshi/php-coveralls": "dev-master"
+    "satooshi/php-coveralls": "dev-master",
+    "mockery/mockery": "^0.9.9"
   },
   "scripts": {
     "test": [
       "composer test-style",
-      "composer exec phpunit"
+      "composer exec -- phpunit -v"
     ],
     "test-style": "composer exec -- phpcs -p -v",
     "fix-style": "composer exec -- phpcbf -p -v"
@@ -37,6 +38,11 @@
   "autoload": {
     "psr-4": {
       "zaporylie\\Vianett\\": "src/Vianett"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "zaporylie\\Vianett\\Test\\": "tests/src"
     }
   }
 }
