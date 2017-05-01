@@ -2,20 +2,30 @@
 
 namespace zaporylie\Vianett;
 
+use function GuzzleHttp\Psr7\build_query;
 use Http\Client\Exception\HttpException;
 use Http\Client\Exception\NetworkException;
-use Http\Client\HttpAsyncClient;
-use Http\Client\HttpClient;
 use Http\Discovery\MessageFactoryDiscovery;
-use Http\Message\RequestFactory;
+use Psr\Http\Message\ResponseInterface;
+use zaporylie\Vianett\HTTP\ClientFactory;
+use zaporylie\Vianett\Message\SMS;
 
 class Vianett implements VianettInterface
 {
 
+    /**
+     * @var \Http\Client\HttpClient|\Http\Client\HttpAsyncClient
+     */
     protected $client;
 
+    /**
+     * @var string
+     */
     protected $username;
 
+    /**
+     * @var string
+     */
     protected $password;
 
     /**
@@ -23,11 +33,20 @@ class Vianett implements VianettInterface
      */
     protected $messageFactory;
 
-    public function __construct($client, $username, $password)
+    /**
+     * Vianett constructor.
+     *
+     * @param string $username
+     * @param string $password
+     * @param array $options
+     */
+    public function __construct($username, $password, $options = [])
     {
-        $this->setHttpClient($client);
         $this->username = $username;
         $this->password = $password;
+
+        $client = isset($options['http_client']) ? $options['http_client'] : null;
+        $this->client = ClientFactory::get($client);
     }
 
     /**
@@ -37,37 +56,34 @@ class Vianett implements VianettInterface
      */
     public function setHttpClient($httpClient)
     {
-        if (!($httpClient instanceof HttpAsyncClient || $httpClient instanceof HttpClient)) {
-            throw new \LogicException(sprintf(
-              'Parameter to Vianett::setHttpClient must be instance of "%s" or "%s"',
-              HttpClient::class,
-              HttpAsyncClient::class
-            ));
-        }
-        $this->httpClient = $httpClient;
+        $this->client = ClientFactory::get($httpClient);
         return $this;
     }
 
-    public function messages()
+    /**
+     * @return \zaporylie\Vianett\Message\MessageInterface
+     */
+    public function messageFactory($type = 'SMS')
     {
-        return new Message($this);
+        switch ($type) {
+            case 'SMS':
+                return new SMS($this);
+        }
+        throw new \InvalidArgumentException('Invalid message type');
     }
 
-    public function request($method, $uri, array $payload = [])
+    /**
+     * {@inheritdoc}
+     */
+    public function request(ResourceInterface $resource, array $content = [])
     {
         try {
             // Build request.
-            $request = $this->buildRequest($method, $uri, $payload);
+            $request = $this->buildRequest($resource, $content);
             // Make a request.
             $response = $this->client->sendRequest($request);
-            // Get and decode content.
-            $content = json_decode($response->getBody()->getContents());
-            // If everything is ok return content.
-            return $content;
-        } catch (HttpException $e) {
-            $exception = new Exception($e->getMessage(), $e->getCode(), $e);
-            $content = json_decode($e->getResponse()->getBody()->getContents());
-            throw $exception;
+            // Parse response.
+            return $this->parseResponse($response);
         } catch (NetworkException $e) {
             throw $e;
         } catch (\Exception $e) {
@@ -76,65 +92,99 @@ class Vianett implements VianettInterface
     }
 
     /**
+     * @param \Psr\Http\Message\ResponseInterface $response
+     *
+     * @return mixed
+     * @throws \zaporylie\Vianett\Exception
+     */
+    protected function parseResponse(ResponseInterface $response)
+    {
+        $success = $response->getHeader('Success');
+        $error_code = $response->getHeader('Error-Code');
+        $error_description = $response->getHeader('Error-Desc');
+
+        // Get status.
+        if (is_array($success)) {
+            $success = reset($success);
+        }
+
+        // Get code.
+        if (is_array($error_code)) {
+            $error_code = (int) reset($error_code);
+        }
+
+        // Get description.
+        if (is_array($error_description)) {
+            $error_description = reset($error_description);
+        }
+
+        // If code is not equal 200, request have failed.
+        if ($success == 'true') {
+            return $response->getBody()->getContents();
+        }
+
+        throw new Exception($error_description, $error_code);
+    }
+
+    /**
      * Return request for method
      *
-     * @param $method
-     * @param $uri
-     * @param array $payload
+     * @param ResourceInterface $resource
+     * @param array data
      *
      * @return \Psr\Http\Message\RequestInterface
      */
-    protected function buildRequest($method, $uri, array $payload)
+    protected function buildRequest(ResourceInterface $resource, array $data)
     {
         return $this->getMessageFactory()->createRequest(
-          $method,
-          $this->getUri($uri),
-          $this->getHeaders($method),
-          $this->getPayload($payload)
+            $resource->getMethod(),
+            $this->getUri($resource),
+            $this->getHeaders($resource),
+            $this->getData($resource, $data)
         );
     }
 
     /**
-     * @param $uri
+     * @param ResourceInterface $resource
      *
      * @return string
      */
-    protected function getUri($uri)
+    protected function getUri(ResourceInterface $resource)
     {
-        $base_uri = $this->environment->getUri();
-        return sprintf('%s/%s%s', $base_uri, $this->version, $uri);
+        return sprintf('%s/%s', $resource->getBaseUrl(), $resource->getUri());
     }
 
     /**
      * Get request headers.
      *
-     * @param string $method
+     * @param ResourceInterface $resource
      *
      * @return array
      */
-    protected function getHeaders($method)
+    protected function getHeaders(ResourceInterface $resource)
     {
         $headers = [
-          'Content-Type' => 'application/json',
+          'Content-Type' => 'application/x-www-form-urlencoded',
         ];
         return $headers;
     }
 
     /**
-     * Get request payload.
+     * Build request data.
      *
-     * @param array $payload
+     * @param \zaporylie\Vianett\ResourceInterface $resource
+     * @param array $data
      *
      * @return string
      */
-    protected function getPayload(array $payload)
+    protected function getData(ResourceInterface $resource, array $data)
     {
-        $payload = array_merge_recursive($payload, [
-          'merchantInfo' => [
-            'merchantSerialNumber' => $this->merchantSerialNumber,
-          ],
-        ]);
-        return json_encode($payload, JSON_UNESCAPED_SLASHES);
+        $data = [
+          'username' => $this->username,
+          'password' => $this->password,
+        ] + $data;
+        $data = array_filter($data);
+        return build_query($data);
     }
 
     /**

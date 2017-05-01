@@ -1,0 +1,76 @@
+<?php
+
+namespace zaporylie\Vianett\Message;
+
+class SMS extends MessageBase
+{
+
+    /**
+     * Base Url.
+     */
+    const HOST = 'https://smsc.vianett.no/v3';
+
+    /**
+     *
+     */
+    const METHOD = 'POST';
+
+    /**
+     *
+     */
+    const URI = 'send';
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getBaseUrl()
+    {
+        return self::HOST;
+    }
+
+    public static function getMethod()
+    {
+        return self::METHOD;
+    }
+
+    public static function getUri()
+    {
+        return self::URI;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function send($sender, $recipient, $message, $options = [])
+    {
+        // Build params array.
+        $options = [
+          'SenderAddress' => $sender,
+          'Tel' => $recipient,
+          'msg' => $message,
+        ] + $options;
+
+        // Add and null all available parameters.
+        $options += [
+          'msgid' => null,
+          'SenderAddressType' => null,
+          'msgbinary' => null,
+          'msgheader' => null,
+          'ReplyPathValue' => null,
+          'ReplypathID' => null,
+          'ScheduledDate' => null,
+          'ScheduledSMSCDate' => null,
+          'ReferenceID' => null,
+          'CheckForDuplicates' => null,
+          'MMSdata' => null,
+          'mmsurl' => null,
+          'PriceGroup' => null,
+          'CampaignID' => null,
+          'TeleOp' => null,
+          'Nrq' => null,
+          'Priority' => null,
+        ];
+
+        return $this->vianett->request($this, $options);
+    }
+}

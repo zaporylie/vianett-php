@@ -4,11 +4,8 @@ $yaml = new \Symfony\Component\Yaml\Parser();
 $settings = \Symfony\Component\Yaml\Yaml::parse(file_get_contents(__DIR__.'/settings.yml'));
 
 try {
-    $httpClient = new Http\Adapter\Guzzle6\Client(new \GuzzleHttp\Client());
-    $vianett = new \zaporylie\Vianett\Vianett($httpClient, $settings['username'], $settings['password']);
-    /*
-        $message = $vianett->messages();
-
+    $vianett = new \zaporylie\Vianett\Vianett($settings['username'], $settings['password']);
+    $message = $vianett->messageFactory();
         // Get transaction status.
         $message->send(
             $settings['sender'],
@@ -16,6 +13,7 @@ try {
             $settings['message']
         );
 
+    /*
         // Dump last response.
         var_dump($message->getLastResponse());
     */
