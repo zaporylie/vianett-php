@@ -26,5 +26,4 @@ class ClientFactory
         }
         return HttpClientDiscovery::find();
     }
-
 }

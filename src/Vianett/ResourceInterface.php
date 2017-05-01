@@ -10,6 +10,18 @@ interface ResourceInterface
      * @return string
      */
     public static function getBaseUrl();
+
+    /**
+     * Request method.
+     *
+     * @return string
+     */
     public static function getMethod();
+
+    /**
+     * Request URI.
+     *
+     * @return string
+     */
     public static function getUri();
 }

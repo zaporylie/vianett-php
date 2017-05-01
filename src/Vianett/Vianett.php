@@ -3,7 +3,6 @@
 namespace zaporylie\Vianett;
 
 use function GuzzleHttp\Psr7\build_query;
-use Http\Client\Exception\HttpException;
 use Http\Client\Exception\NetworkException;
 use Http\Discovery\MessageFactoryDiscovery;
 use Psr\Http\Message\ResponseInterface;
@@ -45,8 +44,7 @@ class Vianett implements VianettInterface
         $this->username = $username;
         $this->password = $password;
 
-        $client = isset($options['http_client']) ? $options['http_client'] : null;
-        $this->client = ClientFactory::get($client);
+        $this->setHttpClient(isset($options['http_client']) ? $options['http_client'] : null);
     }
 
     /**
@@ -57,11 +55,12 @@ class Vianett implements VianettInterface
     public function setHttpClient($httpClient)
     {
         $this->client = ClientFactory::get($httpClient);
+        unset($this->messageFactory);
         return $this;
     }
 
     /**
-     * @return \zaporylie\Vianett\Message\MessageInterface
+     * {@inheritdoc}
      */
     public function messageFactory($type = 'SMS')
     {
@@ -136,7 +135,7 @@ class Vianett implements VianettInterface
      */
     protected function buildRequest(ResourceInterface $resource, array $data)
     {
-        return $this->getMessageFactory()->createRequest(
+        return $this->messageFactoryDiscovery()->createRequest(
             $resource->getMethod(),
             $this->getUri($resource),
             $this->getHeaders($resource),
@@ -190,9 +189,9 @@ class Vianett implements VianettInterface
     /**
      * @return \Http\Message\MessageFactory
      */
-    protected function getMessageFactory()
+    protected function messageFactoryDiscovery()
     {
-        if (!$this->messageFactory) {
+        if (!isset($this->messageFactory)) {
             $this->messageFactory = MessageFactoryDiscovery::find();
         }
         return $this->messageFactory;
