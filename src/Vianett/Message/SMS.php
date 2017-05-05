@@ -2,6 +2,9 @@
 
 namespace zaporylie\Vianett\Message;
 
+use \InvalidArgumentException;
+use libphonenumber\PhoneNumberUtil;
+
 class SMS extends MessageBase
 {
 
@@ -19,6 +22,13 @@ class SMS extends MessageBase
      * Endpoint uri.
      */
     const URI = 'send';
+
+    /**
+     *
+     */
+    const SENDER_TYPE_MSISDN = 1;
+    const SENDER_TYPE_SHORT_CODE = 2;
+    const SENDER_TYPE_ALPHANUMERIC = 5;
 
     /**
      * {@inheritdoc}
@@ -51,6 +61,10 @@ class SMS extends MessageBase
      */
     public function send($sender, $recipient, $message, $options = [])
     {
+        // Validate sender.
+        $type = $options['SenderAddressType'] ? $options['SenderAddressType'] : self::SENDER_TYPE_ALPHANUMERIC;
+        $this->validateSenderNumber($type, $sender);
+
         // Build params array.
         $options = [
           'SenderAddress' => $sender,
@@ -61,7 +75,7 @@ class SMS extends MessageBase
         // Add and null all available parameters.
         $options += [
           'msgid' => null,
-          'SenderAddressType' => null,
+          'SenderAddressType' => $type,
           'msgbinary' => null,
           'msgheader' => null,
           'ReplyPathValue' => null,
@@ -80,5 +94,56 @@ class SMS extends MessageBase
         ];
 
         return $this->vianett->request($this, $options);
+    }
+
+    /**
+     * @param $type
+     * @param $sender
+     *
+     * @return bool
+     * @throws \InvalidArgumentException
+     */
+    protected function validateSenderNumber($type, $sender)
+    {
+        switch ($type) {
+            case self::SENDER_TYPE_ALPHANUMERIC:
+                // Validate number's length.
+                if (strlen($sender) > 11) {
+                    throw new InvalidArgumentException('Sender address cannot be longer than 11 characters.');
+                }
+                return true;
+
+            case self::SENDER_TYPE_SHORT_CODE:
+                // Validate short code number.
+                try {
+                    $phoneNumberUtils = PhoneNumberUtil::getInstance();
+                    $number = $phoneNumberUtils->parse($sender, null);
+                } catch (\Exception $e) {
+                    throw new InvalidArgumentException($e->getMessage(), 0, $e);
+                }
+
+                $shortNumberUtil = \libphonenumber\ShortNumberInfo::getInstance();
+                if (!$shortNumberUtil->isValidShortNumber($number)) {
+                    throw new InvalidArgumentException('Invalid short phone number');
+                }
+                return true;
+
+            case self::SENDER_TYPE_MSISDN:
+                // Validate phone number.
+                try {
+                    $phoneNumberUtils = PhoneNumberUtil::getInstance();
+                    $number = $phoneNumberUtils->parse($sender, null);
+                } catch (\Exception $e) {
+                    throw new InvalidArgumentException($e->getMessage(), 0, $e);
+                }
+
+                if (!$phoneNumberUtils->isValidNumber($number)) {
+                    throw new InvalidArgumentException('Invalid phone number');
+                }
+                return true;
+
+            default:
+                throw new InvalidArgumentException('Invalid SenderAddressType value');
+        }
     }
 }
