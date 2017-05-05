@@ -2,7 +2,6 @@
 
 namespace zaporylie\Vianett;
 
-use function GuzzleHttp\Psr7\build_query;
 use Http\Client\Exception\NetworkException;
 use Http\Discovery\MessageFactoryDiscovery;
 use Psr\Http\Message\ResponseInterface;
@@ -183,7 +182,7 @@ class Vianett implements VianettInterface
           'password' => $this->password,
         ] + $data;
         $data = array_filter($data);
-        return build_query($data);
+        return http_build_query($data);
     }
 
     /**
