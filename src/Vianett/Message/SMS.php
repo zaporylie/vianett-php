@@ -46,6 +46,8 @@ class SMS extends MessageBase
 
     /**
      * {@inheritdoc}
+     *
+     * @see https://www.vianett.com/en/developers/api-documentation/http-get-post-api
      */
     public function send($sender, $recipient, $message, $options = [])
     {
