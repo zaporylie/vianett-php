@@ -9,6 +9,8 @@ use Http\Discovery\HttpClientDiscovery;
 class ClientFactory
 {
     /**
+     * Use this static method to get default HTTP Client.
+     *
      * @param null|HttpClient|HttpAsyncClient $client
      *
      * @return HttpClient|HttpAsyncClient
