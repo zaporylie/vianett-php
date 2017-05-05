@@ -9,6 +9,8 @@ abstract class MessageBase implements ResourceInterface, MessageInterface
 {
 
     /**
+     * VianettInterface object.
+     *
      * @var \zaporylie\Vianett\VianettInterface
      */
     protected $vianett;
@@ -24,14 +26,7 @@ abstract class MessageBase implements ResourceInterface, MessageInterface
     }
 
     /**
-     * @param string $sender
-     * @param string $recipient
-     * @param string $message
-     * @param array $options
-     *
-     * @return array
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function send($sender, $recipient, $message, $options = [])
     {

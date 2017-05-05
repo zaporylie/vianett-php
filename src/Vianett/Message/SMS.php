@@ -11,12 +11,12 @@ class SMS extends MessageBase
     const HOST = 'https://smsc.vianett.no/v3';
 
     /**
-     *
+     * Request method.
      */
     const METHOD = 'POST';
 
     /**
-     *
+     * Endpoint uri.
      */
     const URI = 'send';
 
@@ -28,11 +28,17 @@ class SMS extends MessageBase
         return self::HOST;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getMethod()
     {
         return self::METHOD;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getUri()
     {
         return self::URI;
