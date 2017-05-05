@@ -12,21 +12,29 @@ class Vianett implements VianettInterface
 {
 
     /**
+     * HTTP Client.
+     *
      * @var \Http\Client\HttpClient|\Http\Client\HttpAsyncClient
      */
     protected $client;
 
     /**
+     * API credentials - username.
+     *
      * @var string
      */
     protected $username;
 
     /**
+     * API credentials - password,
+     *
      * @var string
      */
     protected $password;
 
     /**
+     * Factory for PSR-7 message requests and responses.
+     *
      * @var \Http\Message\MessageFactory
      */
     protected $messageFactory;
@@ -90,6 +98,8 @@ class Vianett implements VianettInterface
     }
 
     /**
+     * Parse API response.
+     *
      * @param \Psr\Http\Message\ResponseInterface $response
      *
      * @return mixed
@@ -125,9 +135,9 @@ class Vianett implements VianettInterface
     }
 
     /**
-     * Return request for method
+     * Return request for the resource.
      *
-     * @param ResourceInterface $resource
+     * @param \zaporylie\Vianett\ResourceInterface $resource
      * @param array data
      *
      * @return \Psr\Http\Message\RequestInterface
@@ -143,7 +153,9 @@ class Vianett implements VianettInterface
     }
 
     /**
-     * @param ResourceInterface $resource
+     * Get resource's URI.
+     *
+     * @param \zaporylie\Vianett\ResourceInterface $resource
      *
      * @return string
      */
@@ -155,7 +167,7 @@ class Vianett implements VianettInterface
     /**
      * Get request headers.
      *
-     * @param ResourceInterface $resource
+     * @param \zaporylie\Vianett\ResourceInterface $resource
      *
      * @return array
      */
@@ -186,6 +198,8 @@ class Vianett implements VianettInterface
     }
 
     /**
+     * PSR-8 message factory.
+     *
      * @return \Http\Message\MessageFactory
      */
     protected function messageFactoryDiscovery()
