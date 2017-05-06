@@ -11,7 +11,7 @@ install:
 script:
   - php vendor/bin/phpunit -c phpunit.xml.dist
 
-after_success:
+after_script:
   #- travis_retry php vendor/bin/coveralls
   # or enable logging
   - travis_retry php vendor/bin/coveralls -v
