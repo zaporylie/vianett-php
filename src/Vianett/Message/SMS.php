@@ -62,7 +62,7 @@ class SMS extends MessageBase
     public function send($sender, $recipient, $message, $options = [])
     {
         // Validate sender.
-        $type = $options['SenderAddressType'] ? $options['SenderAddressType'] : self::SENDER_TYPE_ALPHANUMERIC;
+        $type = isset($options['SenderAddressType']) ? $options['SenderAddressType'] : self::SENDER_TYPE_ALPHANUMERIC;
         $this->validateSenderNumber($type, $sender);
 
         // Build params array.
