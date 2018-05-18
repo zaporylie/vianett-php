@@ -102,4 +102,16 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     $this->message->debug();
   }
 
+  public function testMessageOptions()
+  {
+    $sender = 'sender';
+    $receiver = 'receiver';
+    $message = 'message';
+    $message_id = 'message_id';
+    $this->message->prepare($sender, $receiver, $message, $message_id, ['testKey' => 'testValue']);
+    $values = $this->message->debug();
+    $this->assertArrayHasKey('testKey', $values);
+    $this->assertEquals('testValue', $values['testKey']);
+  }
+
 }

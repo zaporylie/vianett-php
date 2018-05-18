@@ -13,6 +13,13 @@ class Message {
   protected $messageId;
 
   /**
+   * An array of options that will be passed as URL parameters.
+   *
+   * @var array
+   */
+  protected $messageOptions;
+
+  /**
    * @var \Vianett\Client
    */
   protected $client;
@@ -72,6 +79,20 @@ class Message {
   }
 
   /**
+   * @return array
+   */
+  public function getMessageOptions() {
+    return $this->messageOptions;
+  }
+
+  /**
+   * @param array $messageOptions
+   */
+  public function setMessageOptions(array $messageOptions) {
+    $this->messageOptions = $messageOptions;
+  }
+
+  /**
    * @param $messageId
    */
   public function setMessageId($messageId) {
@@ -84,11 +105,12 @@ class Message {
    * @param $message
    * @param $message_id
    */
-  public function prepare($sender, $receiver, $message, $message_id) {
+  public function prepare($sender, $receiver, $message, $message_id, $options = []) {
     $this->setSender($sender);
     $this->setReceiver($receiver);
     $this->setMessage($message);
     $this->setMessageId($message_id);
+    $this->setMessageOptions($options);
   }
 
   /**
@@ -110,11 +132,11 @@ class Message {
   }
 
   /**
-   * @return string
+   * @return array
    * @throws \Exception
    */
   protected function prepareValues() {
-    return [
+    $values = [
       'SenderAddress' => $this->sender,
       'Tel' => $this->receiver,
       'msg' => $this->message,
@@ -137,5 +159,11 @@ class Message {
       //Priority
       //HLRMCC/HLRMNC/HLRDate
     ];
+
+    foreach ($this->getMessageOptions() as $key => $value) {
+      $values[$key] = $value;
+    }
+
+    return $values;
   }
 }
